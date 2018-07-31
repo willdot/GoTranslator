@@ -1,14 +1,11 @@
-package main
+package httprequests
 
 import (
 	"GoTranslator/common"
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
-	"strings"
 )
 
 type ResponseJson struct {
@@ -22,52 +19,37 @@ type Todo struct {
 	Completed bool   `json:"completed"`
 }
 
-func main() {
+// HTTPGetRequest makes a get request
+func HTTPGetRequest(url string) {
 
-	/*var input string
+	client := &http.Client{}
 
-	for input != "q" {
-		fmt.Println("Enter something to translate or type q to quit")
-		input = getUserInput()
+	req, err := http.NewRequest("GET", url, nil)
 
-		if input != "q" {
+	if err != nil {
 
-			output := translate.Translate(input)
+	}
 
-			fmt.Println("Translation: ", output)
-		}
-	}*/
+	//req.Header.Add("", ``)
+	resp, err := client.Do(req)
 
-	HTTPPostRequest("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0", "bonjour", "en")
+	fmt.Println(resp.Body)
 
-	fmt.Println("Thankyou for trying translator")
-}
+	if resp.StatusCode == http.StatusOK {
+		convertedJSON := convertResponse(resp)
 
-func getUserInput() string {
+		fmt.Println(convertedJSON.Data.Title)
+	}
 
-	reader := bufio.NewReader(os.Stdin)
-	text, _ := reader.ReadString('\n')
-
-	//fmt.Println(text)
-
-	// remove the new line
-	text = strings.Replace(text, "\n", "", -1)
-	return text
 }
 
 func HTTPPostRequest(url string, input string, language string) {
 
 	client := &http.Client{}
 
-	url = url + "&to=en"
+	var something = []byte(input)
 
-	//var a = bytes.NewBuffer(something)
-
-	body := []byte(input)
-	//req, err := http.Post("http://someurl.com", "body/type", bytes.NewBuffer(body))
-	// Code to process response (written in Get request snippet) goes
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", url+"&to=en", bytes.NewBuffer(something))
 
 	if err != nil {
 
