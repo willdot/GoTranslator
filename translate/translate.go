@@ -6,16 +6,16 @@ import (
 )
 
 // Translate an input string
-func Translate(input string) string {
+func Translate(input, language string) {
 
-	translation := httprequests.HTTPPostRequest("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0", input, "fr")
+	translations := httprequests.HTTPPostRequest("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0", input, language)
 
-	if translation == nil {
+	if translations == nil {
 		fmt.Println("Error translating")
-		return ""
+
 	}
 
-	//fmt.Println(translation.Translations[0].Text)
-
-	return translation.Translations[0].Text
+	for _, translation := range translations.Translations {
+		fmt.Println(translation.To + ": " + translation.Text)
+	}
 }
