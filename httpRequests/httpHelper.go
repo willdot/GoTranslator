@@ -2,85 +2,94 @@ package httprequests
 
 import (
 	"GoTranslator/common"
-	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
-type ResponseJson struct {
-	Data   Todo `json:"data"`
-	Status int  `json:"status"`
+type AzureTranslationResponse struct {
+	DetectedLan  DetectedLanguage `json:"detectedLanguage"`
+	Translations []Translations   `json:"translations"`
 }
 
-type Todo struct {
-	ID        int    `json:"id"`
-	Title     string `json:"title"`
-	Completed bool   `json:"completed"`
+type DetectedLanguage struct {
+	Language string  `json:"language"`
+	Score    float32 `json:"score"`
 }
 
-// HTTPGetRequest makes a get request
-func HTTPGetRequest(url string) {
+type Translations struct {
+	Text string `json:"text"`
+	To   string `json:"to"`
+}
+
+func HTTPPostRequest(url string, input string, language string) *AzureTranslationResponse {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", url, nil)
+	url = url + "&to=" + language
+
+	body := strings.NewReader("[{\"Text\" : \"" + input + "\"}]")
+
+	req, err := http.NewRequest("POST", url, body)
 
 	if err != nil {
-
-	}
-
-	//req.Header.Add("", ``)
-	resp, err := client.Do(req)
-
-	fmt.Println(resp.Body)
-
-	if resp.StatusCode == http.StatusOK {
-		convertedJSON := convertResponse(resp)
-
-		fmt.Println(convertedJSON.Data.Title)
-	}
-
-}
-
-func HTTPPostRequest(url string, input string, language string) {
-
-	client := &http.Client{}
-
-	var something = []byte(input)
-
-	req, err := http.NewRequest("POST", url+"&to=en", bytes.NewBuffer(something))
-
-	if err != nil {
-
+		fmt.Printf("Error on request: %v\n", err)
+		return nil
 	}
 
 	apiKey := common.GetAPIKey()
 
 	req.Header.Add("Ocp-Apim-Subscription-Key", apiKey)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Add("Content-Length", strconv.FormatInt(req.ContentLength, 10))
 
 	resp, err := client.Do(req)
-
-	fmt.Println(resp.Body)
+	if err != nil {
+		fmt.Printf("Error on request: %v\n", err)
+		return nil
+	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
 		convertedJSON := convertResponse(resp)
 
-		fmt.Println(convertedJSON.Data.Title)
+		return convertedJSON
 	}
+
+	return nil
 }
 
-func convertResponse(resp *http.Response) *ResponseJson {
+func convertResponse(resp *http.Response) *AzureTranslationResponse {
 
-	decoder := json.NewDecoder(resp.Body)
+	responseWithoutArray := removeArrayFromResponse(resp)
 
-	var result = new(ResponseJson)
+	decoder := json.NewDecoder(responseWithoutArray)
+
+	var result = new(AzureTranslationResponse)
 
 	err := decoder.Decode(&result)
 
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	return result
+}
+
+func removeArrayFromResponse(resp *http.Response) io.Reader {
+
+	responseByte, _ := ioutil.ReadAll(resp.Body)
+
+	responseString := string(responseByte)
+
+	responseString = strings.TrimSuffix(responseString, "]")
+	responseString = strings.TrimPrefix(responseString, "[")
+
+	output := strings.NewReader(responseString)
+
+	return output
 }

@@ -1,14 +1,21 @@
 package translate
 
-import httprequests "GoTranslator/httpRequests"
+import (
+	httprequests "GoTranslator/httpRequests"
+	"fmt"
+)
 
 // Translate an input string
 func Translate(input string) string {
 
-	//conf := common.GetAPIKey()
+	translation := httprequests.HTTPPostRequest("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0", input, "fr")
 
-	httprequests.HTTPPostRequest("https://api.cognitive.microsofttranslator.com/translate?api-version=3.0", "bonjour", "")
-	//common.HTTPGetRequest("http://localhost:8080/api/todos/1")
+	if translation == nil {
+		fmt.Println("Error translating")
+		return ""
+	}
 
-	return "Some translation here"
+	//fmt.Println(translation.Translations[0].Text)
+
+	return translation.Translations[0].Text
 }
