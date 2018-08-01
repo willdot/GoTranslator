@@ -47,6 +47,7 @@ func getUserInput() string {
 
 	// remove the new line
 	text = strings.TrimSuffix(text, "\r\n")
+	text = strings.TrimSuffix(text, "\n")
 
 	return text
 }
