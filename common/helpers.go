@@ -18,6 +18,7 @@ func GetAPIKey() string {
 
 	if configErr != nil {
 		fmt.Println("Error getting config: ", configErr)
+		return ""
 	}
 
 	return configuration.AzureAPIKey

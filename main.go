@@ -13,31 +13,60 @@ func main() {
 	var input string
 	quit := false
 
+	// Loop to keep application running until user selects to quit
 	for quit != true {
 
 		fmt.Println("Enter something to translate or type q to quit")
 		input = getUserInput()
 
-		if input != "q" {
-
-			var language string
-			languagePointer := &language
-
-			languageCheck := checkLanguage(languagePointer)
-			fmt.Println(languageCheck)
-
-			if quit == false && languageCheck == true {
-				translate.Translate(input, language)
-			} else {
-				quit = true
-			}
-
-		} else {
-			quit = true
+		// User has chosen to quit, so break out the loop and exit application
+		if input == "q" {
+			break
 		}
+
+		var language string
+		languagePointer := &language
+
+		languageCheck := checkLanguage(languagePointer)
+
+		// Check that the selected language is valid. If false, the user selected to quit
+		if languageCheck == true {
+			translate.Translate(input, language)
+		} else {
+			// User has chosen to quit, so break out the loop and exit application
+			break
+		}
+
 	}
 
 	fmt.Println("Thankyou for trying translator")
+}
+
+func checkLanguage(language *string) bool {
+
+	success := false
+
+	// Loop through until either the user selects to quit or they enter a valid language code
+	for success == false {
+		fmt.Println("Please enter a language you wish to translate into (en, fr, de, it) or q to quit")
+
+		*language = getUserInput()
+
+		// User has chosen to quit, so break out the loop to return false
+		if *language == "q" {
+			success = false
+			break
+		}
+
+		// Make sure the user has entered a valid language code
+		if *language != "en" && *language != "fr" && *language != "de" && *language != "it" {
+			fmt.Println("Incorrect language selection")
+		} else {
+			success = true
+		}
+	}
+
+	return success
 }
 
 func getUserInput() string {
@@ -50,27 +79,4 @@ func getUserInput() string {
 	text = strings.TrimSuffix(text, "\n")
 
 	return text
-}
-
-func checkLanguage(language *string) bool {
-
-	success := false
-
-	for success == false {
-		fmt.Println("Please enter a language you wish to translate into (en, fr, de, it) or q to quit")
-
-		*language = getUserInput()
-
-		if *language == "q" {
-			return false
-		}
-
-		if *language != "en" && *language != "fr" && *language != "de" && *language != "it" {
-			fmt.Println("Incorrect language selection")
-		} else {
-			success = true
-		}
-	}
-
-	return true
 }
