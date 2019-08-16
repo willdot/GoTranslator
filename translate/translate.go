@@ -1,8 +1,9 @@
 package translate
 
 import (
-	httprequests "GoTranslator/httpRequests"
 	"fmt"
+
+	httprequests "github.com/willdot/GoTranslator/httpRequests"
 )
 
 // Translate an input string by calling the Azure service

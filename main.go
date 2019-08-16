@@ -1,11 +1,12 @@
 package main
 
 import (
-	"GoTranslator/translate"
 	"bufio"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/willdot/GoTranslator/translate"
 )
 
 func main() {

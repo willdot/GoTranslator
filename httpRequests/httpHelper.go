@@ -1,7 +1,6 @@
 package httprequests
 
 import (
-	"GoTranslator/common"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/willdot/GoTranslator/common"
 )
 
 // AzureTranslationResponse is a model to map the Azure response
